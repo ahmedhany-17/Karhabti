@@ -44,7 +44,7 @@ class Welcome(KnowledgeEngine):
     def r2(self):
         self.declare(Fact(cartype="Toyota"))
 
-    @Rule(Fact(action='find_car'), Fact(typeCar="high end"), Fact(manifactor="germany"))
+    @Rule(Fact(action='find_car'), Fact(typeCar="high end"), Fact(manifactor="Germany"))
     def r3(self):
         self.declare(Fact(cartype="Mercedes"))
 
