@@ -18,7 +18,7 @@ This application is a simple expert system that helps users choose a car based o
 Clone the project  
 
 ~~~bash  
-  git clone https://github.com/Ala-Mabrouk/Karhabti.git
+  https://github.com/ahmedhany-17/Karhabti.git
 ~~~
 
 Go to the project directory  
