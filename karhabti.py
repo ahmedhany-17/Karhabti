@@ -185,16 +185,16 @@ Label(groupe1, text="Country of Manufacture\t", bg=bgFrames, fg=textColors, font
 country.set(None)
 
 Radiobutton(groupe1, text="France", variable=country, value="france", bg=bgFrames, fg=optionsColor,
-            justify="left", borderwidth=3, relief="flat").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+            justify="left", borderwidth=3, relief="flat", font=("arial", 12, )).grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe1, text="Germany", justify="left", variable=country, value="allemangne", bg=bgFrames,
             fg=optionsColor, font=("arial", 12, )).grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe1, text="USA", justify="left", variable=country, value="USA",
-            bg=bgFrames, fg=optionsColor) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
+            bg=bgFrames, fg=optionsColor, font=("arial", 12, )) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe1, text="Japan", variable=country, value="japon", bg=bgFrames,
-            fg=optionsColor) .grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
+            fg=optionsColor, font=("arial", 12, )) .grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
 
 
 groupe2 = Frame(left_frame, width=400, height=185, bg=bgFrames)
@@ -206,16 +206,16 @@ Label(groupe2, text="Type of Car\t", bg=bgFrames, fg=textColors, font=(
 carType.set(None)
 
 Radiobutton(groupe2, text="Sport", variable=carType, value="sport", bg=bgFrames, fg=optionsColor,
-            justify="left", borderwidth=3, relief="flat").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+            justify="left", borderwidth=3, relief="flat", font=("arial", 12, )).grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe2, text="Commercial", justify="left", variable=carType, value="commercial", bg=bgFrames,
             fg=optionsColor, font=("arial", 12, )).grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe2, text="Popular", justify="left", variable=carType, value="popular",
-            bg=bgFrames, fg=optionsColor) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
+            bg=bgFrames, fg=optionsColor, font=("arial", 12, )) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe2, text="High end", variable=carType, value="high end", bg=bgFrames,
-            fg=optionsColor) .grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
+            fg=optionsColor, font=("arial", 12, )) .grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
 
 
 groupe3 = Frame(right_frame, width=400, height=185, bg=bgFrames)
@@ -226,24 +226,24 @@ Label(groupe3, text="Type of fuel:\t", bg=bgFrames, fg=textColors, font=(
 fuel.set(None)
 
 Radiobutton(groupe3, text="Mazout", variable=fuel, value="Mazout", bg=bgFrames, fg=optionsColor,
-            justify="left", borderwidth=3, relief="flat").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+            justify="left", borderwidth=3, relief="flat",  font=("arial", 12, )).grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe3, text="Gasoline", justify="left", variable=fuel, value="Gasoline", bg=bgFrames,
             fg=optionsColor, font=("arial", 12, )).grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe3, text="Electric", justify="left", variable=fuel, value="Electric",
-            bg=bgFrames, fg=optionsColor) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
+            bg=bgFrames, fg=optionsColor,  font=("arial", 12, )) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
 
 groupe4 = Frame(right_frame, width=400, height=185, bg=bgFrames)
 groupe4.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
-Label(groupe4, text="Limites d'argent:\t\t", bg=bgFrames, fg=textColors, font=(
+Label(groupe4, text="Money limits:\t\t", bg=bgFrames, fg=textColors, font=(
     "arial", 12, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
  
 money.set(None)
 
-Radiobutton(groupe4, text="between 10000 and 70000 eur ", variable=money, value="[10000-70000] ", bg=bgFrames, fg=optionsColor,
+Radiobutton(groupe4, text="between 10000 and 70000 eur ", variable=money, value="[10000-70000] ",font=("arial", 12 ), bg=bgFrames, fg=optionsColor,
             justify="left", borderwidth=3, relief="flat").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
 Radiobutton(groupe4, text="between 80000 and 300000 eur ", justify="left", variable=money, value="[80000-300000]", bg=bgFrames,
