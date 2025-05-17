@@ -4,7 +4,7 @@ from tkinter import messagebox
 from experta import *
 import random
  
-root = tk.Tk()  # create root window
+root = tk.Tk()  
 root.iconphoto(False, tk.PhotoImage(file='./icons/car.png'))
 
 carResult = ""
@@ -18,72 +18,65 @@ class Welcome(KnowledgeEngine):
     @DefFacts()
     def initial(self):
          yield Fact(action="find_car")
- 
-# ************ FACTS *******************
- 
-    # type sport / commercial / Popular / high_end   
+  
     @Rule(Fact(action='find_car'),NOT(Fact(typeCar=W())),salience=1)
     def carType(self):
-        self.declare(Fact(typeCar=carType.get()))  #first
+        self.declare(Fact(typeCar=carType.get()))  
     
-    # factory country france / Germany / Japan / USA
     @Rule(Fact(action='find_car'),NOT(Fact(manifactor=W())),salience=1)
     def carManifactor(self):
-        self.declare(Fact(manifactor=country.get()))  #first
+        self.declare(Fact(manifactor=country.get()))
    
-    # fuel Mazout / gasolina / electric
     @Rule(Fact(action='find_car'),NOT(Fact(fuel=W())),salience=1)
     def carFuel(self):
         self.declare(Fact(fuel=fuel.get()))
 
-    # Prices 30-70] / [70-180] / [180-600]
     @Rule(Fact(action='find_car'),NOT(Fact(price=W())),salience=1)
     def carPrice(self):
         self.declare(Fact(price=money.get()))        
    
-# ************ RULES *******************
 
-    @Rule(Fact(action='find_car'), Fact(typeCar="popular"), Fact(manifactor="france"))
+    @Rule(Fact(action='find_car'), Fact(typeCar="popular"), Fact(manifactor="France"))
     def r1(self):
-        self.declare(Fact(cartype="peugot"))
+        self.declare(Fact(cartype="Peugot"))
 
-    @Rule(Fact(action='find_car'), Fact(typeCar="commercial"), Fact(manifactor="japan"))
+    @Rule(Fact(action='find_car'), Fact(typeCar="commercial"), Fact(manifactor="Japan"))
     def r2(self):
-        self.declare(Fact(cartype="toyota"))
+        self.declare(Fact(cartype="Toyota"))
 
     @Rule(Fact(action='find_car'), Fact(typeCar="high end"), Fact(manifactor="germany"))
     def r3(self):
-        self.declare(Fact(cartype="mercedes"))
+        self.declare(Fact(cartype="Mercedes"))
 
-    @Rule(Fact(action='find_car'), Fact(cartype="mercedes"), Fact(price="[1800000-6000000]"))
+    @Rule(Fact(action='find_car'), Fact(cartype="Mercedes"), Fact(price="[30000-70000]"))
     def r4(self):
-        self.declare(Fact(car="mercedes class S"))
+        self.declare(Fact(car="Mercedes Class S"))
 
-    @Rule(Fact(action='find_car'), Fact(fuel="electric"), Fact(cartype="peugot"), Fact(price="[300000000-7000000]"))
+    @Rule(Fact(action='find_car'), Fact(fuel="Electric"), Fact(cartype="Peugot"), Fact(price="[10000-20000]"))
     def r5(self):
         self.declare(Fact(car="Peugot E-208"))
 
-    @Rule(Fact(action='find_car'), Fact(cartype="Mercedes"), Fact(price="[70000000-18000000]"))
+    @Rule(Fact(action='find_car'), Fact(cartype="Mercedes"), Fact(price="[20000-30000]"))
     def r6(self):
         self.declare(Fact(car="Mercedes class A"))
 
-    @Rule(Fact(action='find_car'), Fact(typeCar="high end"), Fact(manifactor="USA"), Fact(fuel="electric"))
+    @Rule(Fact(action='find_car'), Fact(typeCar="High End"), Fact(manifactor="USA"), Fact(fuel="Electric"))
     def r7(self):
         self.declare(Fact(cartype="Tesla"))
 
-    @Rule(Fact(action='find_car'), Fact(cartype="Tesla"), Fact(price="[70000000-18000000]"))
+    @Rule(Fact(action='find_car'), Fact(cartype="Tesla"), Fact(price="[60000-180000]"))
     def r8(self):
-        self.declare(Fact(car="Tesla model 3"))
+        self.declare(Fact(car="Tesla Model 3"))
 
-    @Rule(Fact(action='find_car'), Fact(typeCar="sport"), Fact(manifactor="germany"), Fact(fuel="Mazout"))
+    @Rule(Fact(action='find_car'), Fact(typeCar="Sport"), Fact(manifactor="Germany"), Fact(fuel="Mazout"))
     def r9(self):
         self.declare(Fact(cartype="Audi"))
 
-    @Rule(Fact(action='find_car'), Fact(cartype="Audi"), Fact(price="[18000000-6000000]"))
+    @Rule(Fact(action='find_car'), Fact(cartype="Audi"), Fact(price="[180000-600000]"))
     def r10(self):
         self.declare(Fact(car="Audi_Rs3"))
         
-    @Rule(Fact(action='find_car'), Fact(cartype="toyota"), Fact(price="[70000000-18000000]"))
+    @Rule(Fact(action='find_car'), Fact(cartype="Toyota"), Fact(price="[30000-70000]"))
     def r11(self):
         self.declare(Fact(car="Toyota Hilux"))    
 
@@ -99,16 +92,13 @@ class Welcome(KnowledgeEngine):
         global carResult
         carResult="no idea"
 
-
-# ********************** MAIN PROG ************************
-# colors
 backgroundvalue = "#F6F5F5"
 bgFrames = "#D3E0EA"
 textColors = "#1687A7"
 optionsColor = "black"
 titleColor="#276678"
 engine = Welcome()
- # prepare
+ 
 def openResultWindow():
     engine.reset() 
     engine.run()
@@ -117,19 +107,19 @@ def openResultWindow():
     windowRes.title=""
     windowRes.iconphoto(False, PhotoImage(master=windowRes,file='./icons/car.png'))
 
-    # specify the max size the window can expand to
+    
     windowRes.maxsize(700, 500)
-    windowRes.config(bg=backgroundvalue)  # specify background color
+    windowRes.config(bg=backgroundvalue)  
 
-# Create left and right frames
+
 
     headFrame = Frame(windowRes, width=600, height=100, bg=backgroundvalue)
     headFrame.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
     BodyFrame = Frame(windowRes, width=700, height=300, bg=backgroundvalue)
     BodyFrame.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
     if(carResult=="no idea"):
-        # generating random car from the popular list:
-        carName= random.choice(["Audi a4","Toyota prado","Chery Tiggo 2"])
+        
+        carName= random.choice(["Audi a4","Toyota Prado","Chery Tiggo 2"])
         
         Label(headFrame, text="Sorry, we couldn't find a car in our knowledge base with your preferences.",font=("arial italic", 10), bg=backgroundvalue, fg=titleColor).grid(row=0, column=1, padx=5, pady=5)
         Label(headFrame, text="but we recommend \t", font=(
@@ -151,11 +141,10 @@ def openResultWindow():
 
 
 
-root.title("Karhabti")  # title of the GUI window
-root.maxsize(900, 700)  # specify the max size the window can expand to
-root.config(bg=backgroundvalue)  # specify background color
+root.title("Karhabti")  
+root.maxsize(900, 700)  
+root.config(bg=backgroundvalue) 
 
-# Create left and right frames
 
 headFrame = tk.Frame(root, width=600, height=150, bg=backgroundvalue)
 headFrame.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
@@ -180,19 +169,17 @@ right_frame.grid(row=1, column=1, padx=20, pady=5, sticky="nsew")
 footerFrame = tk.Frame(root, width=600, height=150, bg=backgroundvalue)
 footerFrame.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
 
-# title left frame
+
 tk.Label(BodyFrame, text="Choose from the criteria that suit you: ", wraplength=350, font=("arial italic",
          15), bg=backgroundvalue, fg=textColors).grid(row=0, column=0, padx=5, pady=5, sticky="w")
-tk.Label(BodyFrame, text="choisir parmis nos critéres\t", wraplength=350, font=("arial italic",
+tk.Label(BodyFrame, text="Choose from our criteria\t", wraplength=350, font=("arial italic",
          15), bg=backgroundvalue, fg=backgroundvalue).grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-# groupe1
-# factory country france / germany / Japan / USA
+
 groupe1 = Frame(left_frame, width=400, height=185, bg=bgFrames)
 groupe1.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-# Create the first group of radio buttons
-Label(groupe1, text="Pays fabricant\t", bg=bgFrames, fg=textColors, font=(
+Label(groupe1, text="Country of Manufacture\t", bg=bgFrames, fg=textColors, font=(
     "arial", 12, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
 country.set(None)
@@ -210,11 +197,9 @@ Radiobutton(groupe1, text="Japan", variable=country, value="japon", bg=bgFrames,
             fg=optionsColor) .grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
 
 
-# groupe2
-# type sport / commercial / Popular / high_end
 groupe2 = Frame(left_frame, width=400, height=185, bg=bgFrames)
 groupe2.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
-Label(groupe2, text="Type de voiture:\t\t", bg=bgFrames, fg=textColors, font=(
+Label(groupe2, text="Type of Car\t", bg=bgFrames, fg=textColors, font=(
     "arial", 12, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
 
@@ -233,26 +218,23 @@ Radiobutton(groupe2, text="High end", variable=carType, value="high end", bg=bgF
             fg=optionsColor) .grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
 
 
-# groupe3
-# fuel Mazout / gasoline / electric
 groupe3 = Frame(right_frame, width=400, height=185, bg=bgFrames)
 groupe3.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-Label(groupe3, text="Type de carburant:\t", bg=bgFrames, fg=textColors, font=(
+Label(groupe3, text="Type of fuel:\t", bg=bgFrames, fg=textColors, font=(
     "arial", 12, "bold")).grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
  
 fuel.set(None)
 
-Radiobutton(groupe3, text="mazout", variable=fuel, value="mazout", bg=bgFrames, fg=optionsColor,
+Radiobutton(groupe3, text="Mazout", variable=fuel, value="Mazout", bg=bgFrames, fg=optionsColor,
             justify="left", borderwidth=3, relief="flat").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-Radiobutton(groupe3, text="gasoline", justify="left", variable=fuel, value="gasoline", bg=bgFrames,
+Radiobutton(groupe3, text="Gasoline", justify="left", variable=fuel, value="Gasoline", bg=bgFrames,
             fg=optionsColor, font=("arial", 12, )).grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
-Radiobutton(groupe3, text="electric", justify="left", variable=fuel, value="electric",
+Radiobutton(groupe3, text="Electric", justify="left", variable=fuel, value="Electric",
             bg=bgFrames, fg=optionsColor) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
-# groupe4
-# Prices [30-70] / [70-180] / [180-600]
+
 groupe4 = Frame(right_frame, width=400, height=185, bg=bgFrames)
 groupe4.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 Label(groupe4, text="Limites d'argent:\t\t", bg=bgFrames, fg=textColors, font=(
@@ -261,13 +243,13 @@ Label(groupe4, text="Limites d'argent:\t\t", bg=bgFrames, fg=textColors, font=(
  
 money.set(None)
 
-Radiobutton(groupe4, text="between 300000000 and 700000000 eur ", variable=money, value="[300000000-700000000] ", bg=bgFrames, fg=optionsColor,
+Radiobutton(groupe4, text="between 10000 and 70000 eur ", variable=money, value="[10000-70000] ", bg=bgFrames, fg=optionsColor,
             justify="left", borderwidth=3, relief="flat").grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-Radiobutton(groupe4, text="between 300000000 and 700000000 eur ", justify="left", variable=money, value="[700000000-180000000]", bg=bgFrames,
+Radiobutton(groupe4, text="between 80000 and 300000 eur ", justify="left", variable=money, value="[80000-300000]", bg=bgFrames,
             fg=optionsColor, font=("arial", 12, )).grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
-Radiobutton(groupe4, text="between 180000000 and 600000000 eur", justify="left", variable=money, value="[180000000-600000000]",font=("arial", 12 ),
+Radiobutton(groupe4, text="between 400000 and 600000 eur", justify="left", variable=money, value="[300000-600000]",font=("arial", 12 ),
             bg=bgFrames, fg=optionsColor) .grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 
 
