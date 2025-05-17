@@ -6,13 +6,7 @@ This application is a simple expert system that helps users choose a car based o
 - Python 3.x
 - Experta library
 - Tkinter library (usually comes with Python)
-
-## Screenshots  
-|  |  |
-|--------------|--------------|
-| ![Screenshot of the app's home screen](screenshot/mainScreen.png) | ![Screenshot of the app's exemple1 screen](screenshot/exemple1.png) |
-| ![Screenshot of the app's default case](screenshot/defaultCase.png) | ![Screenshot of the app's conditions screen](screenshot/conditions.png) |
-
+  
 ## Run Locally  
 
 Clone the project  
