@@ -1,194 +1,116 @@
 import tkinter as tk
-from tkinter import messagebox
-from experta import *
-import random
+from tkinter import ttk, messagebox
+from PIL import Image, ImageTk
 import os
 
-# Initialize main window
+# Get current directory for image path
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+IMAGE_DIR = os.path.join(BASE_DIR, "images")
+
+# Car database (you can add more if needed)
+cars = [
+    {"name": "Peugeot 208", "country": "Europe", "fuel": "Petrol", "gearbox": "Manual", "budget": "Medium", "image": "peugeot208.jpg"},
+    {"name": "Renault Clio", "country": "Europe", "fuel": "Diesel", "gearbox": "Automatic", "budget": "Medium", "image": "clio.jpg"},
+    {"name": "Kia Picanto", "country": "Asia", "fuel": "Petrol", "gearbox": "Automatic", "budget": "Low", "image": "picanto.jpg"},
+    {"name": "Hyundai i10", "country": "Asia", "fuel": "Petrol", "gearbox": "Manual", "budget": "Low", "image": "i10.jpg"},
+    {"name": "Volkswagen Golf", "country": "Europe", "fuel": "Diesel", "gearbox": "Manual", "budget": "High", "image": "golf.jpg"},
+    {"name": "Toyota Corolla", "country": "Asia", "fuel": "Petrol", "gearbox": "Automatic", "budget": "High", "image": "corolla.jpg"},
+]
+
+# Create main app window
 root = tk.Tk()
-root.title("Karhabti - Car Recommendation System")
-root.geometry("900x700")
-root.configure(bg="#f0f0f0")
-root.iconphoto(False, tk.PhotoImage(file='./icons/car.png'))
+root.title("Car Recommendation System")
+root.geometry("1000x700")
+root.configure(bg="#1e1e2f")
 
-# Define StringVars after initializing root
+# Global variables
 country = tk.StringVar()
-car_type = tk.StringVar()
 fuel = tk.StringVar()
+gearbox = tk.StringVar()
 budget = tk.StringVar()
-car_result = ""
 
-# Expert System
-class CarExpertSystem(KnowledgeEngine):
-    @DefFacts()
-    def _initial_action(self):
-        yield Fact(action="find_car")
+# Title label
+tk.Label(root, text="Find Your Perfect Car!", font=("Helvetica", 26, "bold"), bg="#1e1e2f", fg="#00ffff").pack(pady=20)
 
-    @Rule(Fact(action='find_car'), NOT(Fact(car_type=W())), salience=1)
-    def set_car_type(self):
-        self.declare(Fact(car_type=car_type.get()))
+# Frame for dropdowns
+form_frame = tk.Frame(root, bg="#1e1e2f")
+form_frame.pack(pady=20)
 
-    @Rule(Fact(action='find_car'), NOT(Fact(manufacturer=W())), salience=1)
-    def set_manufacturer(self):
-        self.declare(Fact(manufacturer=country.get()))
+def create_dropdown(label_text, variable, options, row):
+    tk.Label(form_frame, text=label_text, font=("Helvetica", 14), bg="#1e1e2f", fg="white").grid(row=row, column=0, sticky="w", pady=8, padx=10)
+    dropdown = ttk.Combobox(form_frame, textvariable=variable, values=options, font=("Helvetica", 13), state="readonly", width=20)
+    dropdown.grid(row=row, column=1, pady=8, padx=10)
 
-    @Rule(Fact(action='find_car'), NOT(Fact(fuel_type=W())), salience=1)
-    def set_fuel_type(self):
-        self.declare(Fact(fuel_type=fuel.get()))
+create_dropdown("Preferred Country:", country, ["Europe", "Asia"], 0)
+create_dropdown("Fuel Type:", fuel, ["Petrol", "Diesel"], 1)
+create_dropdown("Gearbox Type:", gearbox, ["Manual", "Automatic"], 2)
+create_dropdown("Budget:", budget, ["Low", "Medium", "High"], 3)
 
-    @Rule(Fact(action='find_car'), NOT(Fact(price_range=W())), salience=1)
-    def set_price_range(self):
-        self.declare(Fact(price_range=budget.get()))
+# Result display frame
+result_frame = tk.Frame(root, bg="#1e1e2f")
+result_frame.pack(pady=20)
 
-    # Define rules for car recommendations
-    @Rule(Fact(action='find_car'), Fact(car_type="popular"), Fact(manufacturer="France"))
-    def recommend_peugeot(self):
-        self.declare(Fact(brand="Peugeot"))
+def load_image(image_name, size=(200, 150)):
+    try:
+        img_path = os.path.join(IMAGE_DIR, image_name)
+        img = Image.open(img_path)
+        img = img.resize(size, Image.ANTIALIAS)
+        return ImageTk.PhotoImage(img)
+    except Exception as e:
+        print(f"Error loading image {image_name}: {e}")
+        return None
 
-    @Rule(Fact(action='find_car'), Fact(car_type="commercial"), Fact(manufacturer="Japan"))
-    def recommend_toyota(self):
-        self.declare(Fact(brand="Toyota"))
-
-    @Rule(Fact(action='find_car'), Fact(car_type="high end"), Fact(manufacturer="Germany"))
-    def recommend_mercedes(self):
-        self.declare(Fact(brand="Mercedes"))
-
-    @Rule(Fact(action='find_car'), Fact(brand="Mercedes"), Fact(price_range="[30000-70000]"))
-    def recommend_mercedes_s(self):
-        self.declare(Fact(car="Mercedes Class S"))
-
-    @Rule(Fact(action='find_car'), Fact(fuel_type="Electric"), Fact(brand="Peugeot"), Fact(price_range="[10000-20000]"))
-    def recommend_peugeot_e208(self):
-        self.declare(Fact(car="Peugeot E-208"))
-
-    @Rule(Fact(action='find_car'), Fact(brand="Mercedes"), Fact(price_range="[20000-30000]"))
-    def recommend_mercedes_a(self):
-        self.declare(Fact(car="Mercedes Class A"))
-
-    @Rule(Fact(action='find_car'), Fact(car_type="high end"), Fact(manufacturer="USA"), Fact(fuel_type="Electric"))
-    def recommend_tesla(self):
-        self.declare(Fact(brand="Tesla"))
-
-    @Rule(Fact(action='find_car'), Fact(brand="Tesla"), Fact(price_range="[60000-180000]"))
-    def recommend_tesla_model3(self):
-        self.declare(Fact(car="Tesla Model 3"))
-
-    @Rule(Fact(action='find_car'), Fact(car_type="sport"), Fact(manufacturer="Germany"), Fact(fuel_type="Diesel"))
-    def recommend_audi(self):
-        self.declare(Fact(brand="Audi"))
-
-    @Rule(Fact(action='find_car'), Fact(brand="Audi"), Fact(price_range="[180000-600000]"))
-    def recommend_audi_rs3(self):
-        self.declare(Fact(car="Audi RS3"))
-
-    @Rule(Fact(action='find_car'), Fact(brand="Toyota"), Fact(price_range="[30000-70000]"))
-    def recommend_toyota_hilux(self):
-        self.declare(Fact(car="Toyota Hilux"))
-
-    @Rule(Fact(action='find_car'), Fact(car=MATCH.car), salience=-998)
-    def set_result(self, car):
-        global car_result
-        car_result = car
-
-    @Rule(Fact(action='find_car'), NOT(Fact(car=MATCH.car)), salience=-999)
-    def no_result(self):
-        global car_result
-        car_result = "No suitable car found."
-
-# Function to display results
-def show_results():
-    engine = CarExpertSystem()
-    engine.reset()
-    engine.run()
-
-    result_window = tk.Toplevel(root)
-    result_window.title("Recommended Car")
-    result_window.geometry("800x600")
-    result_window.configure(bg="#ffffff")
-
-    tk.Label(result_window, text="Recommended Car:", font=("Arial", 16, "bold"), bg="#ffffff").pack(pady=10)
-
-    if car_result != "No suitable car found.":
-        tk.Label(result_window, text=car_result, font=("Arial", 14), bg="#ffffff").pack(pady=5)
-        image_path = f"./images/{car_result}.gif"
-        if os.path.exists(image_path):
-            img = tk.PhotoImage(file=image_path)
-            img_label = tk.Label(result_window, image=img, bg="#ffffff")
-            img_label.image = img  # Keep a reference
-            img_label.pack(pady=10)
-        else:
-            tk.Label(result_window, text="Image not available.", bg="#ffffff").pack(pady=10)
-    else:
-        tk.Label(result_window, text="No suitable car found based on your preferences.", font=("Arial", 14), bg="#ffffff").pack(pady=5)
-
-    # Display all available car images
-    tk.Label(result_window, text="Available Cars:", font=("Arial", 16, "bold"), bg="#ffffff").pack(pady=10)
-    images_frame = tk.Frame(result_window, bg="#ffffff")
-    images_frame.pack(pady=10)
-
-    available_cars = ["Audi RS3", "Toyota Hilux", "Peugeot E-208", "Mercedes Class S", "Mercedes Class A", "Tesla Model 3"]
-    for car in available_cars:
-        image_path = f"./images/{car}.gif"
-        if os.path.exists(image_path):
-            img = tk.PhotoImage(file=image_path).subsample(2, 2)
-            img_label = tk.Label(images_frame, image=img, bg="#ffffff")
-            img_label.image = img  # Keep a reference
-            img_label.pack(side="left", padx=5)
-
-# Function to validate inputs and submit
 def submit():
-    if not country.get() or not car_type.get() or not fuel.get() or not budget.get():
-        messagebox.showwarning("Input Error", "Please select all options.")
-    else:
-        show_results()
+    for widget in result_frame.winfo_children():
+        widget.destroy()
 
-# Function to reset selections
+    selected_country = country.get()
+    selected_fuel = fuel.get()
+    selected_gearbox = gearbox.get()
+    selected_budget = budget.get()
+
+    if not all([selected_country, selected_fuel, selected_gearbox, selected_budget]):
+        messagebox.showerror("Input Error", "Please select all options.")
+        return
+
+    matching_cars = []
+    for car in cars:
+        if (car["country"] == selected_country and
+            car["fuel"] == selected_fuel and
+            car["gearbox"] == selected_gearbox and
+            car["budget"] == selected_budget):
+            matching_cars.append(car)
+
+    if matching_cars:
+        tk.Label(result_frame, text="Recommended Cars:", font=("Helvetica", 20, "bold"), bg="#1e1e2f", fg="#00ffcc").pack(pady=10)
+        cards_frame = tk.Frame(result_frame, bg="#1e1e2f")
+        cards_frame.pack()
+        for car in matching_cars:
+            car_card = tk.Frame(cards_frame, bg="#2d2d44", bd=2, relief="groove")
+            car_card.pack(side="left", padx=10, pady=10)
+
+            img = load_image(car["image"])
+            if img:
+                tk.Label(car_card, image=img, bg="#2d2d44").pack()
+                car_card.image = img  # Keep a reference
+
+            tk.Label(car_card, text=car["name"], font=("Helvetica", 14, "bold"), bg="#2d2d44", fg="white").pack(pady=5)
+    else:
+        tk.Label(result_frame, text="No matching cars found.", font=("Helvetica", 16), bg="#1e1e2f", fg="red").pack(pady=10)
+
 def reset():
     country.set("")
-    car_type.set("")
     fuel.set("")
+    gearbox.set("")
     budget.set("")
+    for widget in result_frame.winfo_children():
+        widget.destroy()
 
-# UI Layout
-tk.Label(root, text="Karhabti - Car Recommendation System", font=("Arial", 20, "bold"), bg="#f0f0f0").pack(pady=20)
+# Button frame
+button_frame = tk.Frame(root, bg="#1e1e2f")
+button_frame.pack(pady=10)
 
-form_frame = tk.Frame(root, bg="#f0f0f0")
-form_frame.pack(pady=10)
+tk.Button(button_frame, text="Submit", command=submit, width=15, font=("Helvetica", 12), bg="#00bcd4", fg="white").pack(side="left", padx=10)
+tk.Button(button_frame, text="Reset", command=reset, width=15, font=("Helvetica", 12), bg="#e91e63", fg="white").pack(side="left", padx=10)
 
-# Country of Manufacture
-tk.Label(form_frame, text="Country of Manufacture:", font=("Arial", 12), bg="#f0f0f0").grid(row=0, column=0, sticky="w", pady=5)
-countries = ["France", "Germany", "USA", "Japan"]
-for idx, val in enumerate(countries):
-    tk.Radiobutton(form_frame, text=val, variable=country, value=val, bg="#f0f0f0").grid(row=0, column=idx+1, padx=5, pady=5)
-
-# Type of Car
-tk.Label(form_frame, text="Type of Car:", font=("Arial", 12), bg="#f0f0f0").grid(row=1, column=0, sticky="w", pady=5)
-car_types = ["Sport", "Commercial", "Popular", "High End"]
-for idx, val in enumerate(car_types):
-    tk.Radiobutton(form_frame, text=val, variable=car_type, value=val.lower(), bg="#f0f0f0").grid(row=1, column=idx+1, padx=5, pady=5)
-
-# Fuel Type
-tk.Label(form_frame, text="Fuel Type:", font=("Arial", 12), bg="#f0f0f0").grid(row=2, column=0, sticky="w", pady=5)
-fuels = ["Diesel", "Gasoline", "Electric"]
-for idx, val in enumerate(fuels):
-    tk.Radiobutton(form_frame, text=val, variable=fuel, value=val, bg="#f0f0f0").grid(row=2, column=idx+1, padx=5, pady=5)
-
-# Budget
-tk.Label(form_frame, text="Budget Range:", font=("Arial", 12), bg="#f0f0f0").grid(row=3, column=0, sticky="w", pady=5)
-budgets = {
-    "10,000 - 20,000 EUR": "[10000-20000]",
-    "20,000 - 30,000 EUR": "[20000-30000]",
-    "30,000 - 70,000 EUR": "[30000-70000]",
-    "60,000 - 180,000 EUR": "[60000-180000]",
-    "180,000 - 600,000 EUR": "[180000-600000]"
-}
-for idx, (label, val) in enumerate(budgets.items()):
-    tk.Radiobutton(form_frame, text=label, variable=budget, value=val, bg="#f0f0f0").grid(row=3+idx, column=1, columnspan=4, sticky="w", padx=5, pady=2)
-
-# Buttons
-button_frame = tk.Frame(root, bg="#f0f0f0")
-button_frame.pack(pady=20)
-tk.Button(button_frame, text="Submit", command=submit, width=15).pack(side="left", padx=10)
-tk.Button(button_frame, text="Reset", command=reset, width=15
-::contentReference[oaicite:0]{index=0}
- 
+root.mainloop()
