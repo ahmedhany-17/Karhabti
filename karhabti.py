@@ -304,26 +304,16 @@ def resetInput():
     money.set(None)
 
 # Buttons
-button_frame = Frame(footerFrame, bg=backgroundvalue)
-button_frame.grid(row=0, column=0, columnspan=2, pady=10)
-
+Label(footerFrame, text="\t\t\t\t\t\t", bg=backgroundvalue, fg=textColors).grid(
+    row=0, column=0, padx=5, pady=5, sticky="nsew")
 imgreset = PhotoImage(file="./icons/resetIm.gif").subsample(12, 12)
 imgSearch = PhotoImage(file="./icons/save.gif").subsample(8, 8)
-
-Button(button_frame, 
-       text="Reset", 
-       command=resetInput, 
-       image=imgreset,
-       compound=LEFT,
-       bg=buttonColor,
-       fg=buttonText,
-       activebackground=accentColor,
-       activeforeground=buttonText,
-       font=("Arial", 11, "bold"),
-       padx=10,
-       borderwidth=0).pack(side=LEFT, padx=20)
+resetBTN = Button(footerFrame, text="reset input", command=resetInput, image=imgreset).grid(
+    row=0, column=1, padx=5, pady=5, sticky="nsew",)
 
 Button(footerFrame, text="Search\t", command=on_submit, image=imgSearch).grid(
     row=0, column=3, padx=5, pady=5, sticky="nsew")
+
+
 
 root.mainloop()
