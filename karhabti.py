@@ -323,17 +323,7 @@ Button(button_frame,
        padx=10,
        borderwidth=0).pack(side=LEFT, padx=20)
 
-Button(button_frame, 
-       text="Find My Car", 
-       command=on_submit, 
-       image=imgSearch,
-       compound=LEFT,
-       bg=titleColor,
-       fg=buttonText,
-       activebackground=accentColor,
-       activeforeground=buttonText,
-       font=("Arial", 11, "bold"),
-       padx=10,
-       borderwidth=0).pack(side=LEFT, padx=20)
+Button(footerFrame, text="Search\t", command=on_submit, image=imgSearch).grid(
+    row=0, column=3, padx=5, pady=5, sticky="nsew")
 
 root.mainloop()
