@@ -1,131 +1,124 @@
+import tkinter as tk
+from tkinter import messagebox, PhotoImage
 from experta import *
-from tkinter import *
-from tkinter import ttk, messagebox
+import random
+import os
 
-class CarExpertSystem(KnowledgeEngine):
+# Expert system engine
+class CarExpert(KnowledgeEngine):
     @DefFacts()
     def _initial_action(self):
         yield Fact(action="find_car")
 
     @Rule(Fact(action='find_car'),
-          Fact(country='France'),
-          Fact(carType='Luxury'),
-          Fact(fuel='Petrol'),
-          Fact(money='High'))
-    def car_1(self):
+          Fact(price='low'),
+          Fact(fuel='electric'),
+          Fact(size='small'))
+    def car1(self):
+        self.declare(Fact(car='Peugot E-208'))
+
+    @Rule(Fact(action='find_car'),
+          Fact(price='high'),
+          Fact(fuel='hybrid'),
+          Fact(size='large'))
+    def car2(self):
         self.declare(Fact(car='Mercedes Class S'))
 
-    @Rule(Fact(action='find_car'),
-          Fact(country='Germany'),
-          Fact(carType='Sports'),
-          Fact(fuel='Petrol'),
-          Fact(money='High'))
-    def car_2(self):
-        self.declare(Fact(car='Porsche 911'))
+    # Add more rules here...
 
-    @Rule(Fact(action='find_car'),
-          Fact(country='USA'),
-          Fact(carType='SUV'),
-          Fact(fuel='Diesel'),
-          Fact(money='Medium'))
-    def car_3(self):
-        self.declare(Fact(car='Ford Explorer'))
+class CarApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Karhabti - Car Recommendation Expert System")
+        self.root.geometry("700x500")
+        self.root.configure(bg="#1e1e2f")
 
-    @Rule(Fact(action='find_car'),
-          Fact(country='Japan'),
-          Fact(carType='Sedan'),
-          Fact(fuel='Hybrid'),
-          Fact(money='Low'))
-    def car_4(self):
-        self.declare(Fact(car='Toyota Prius'))
+        self.answers = {}
+        self.image_refs = {}  # prevent garbage collection
 
-    @Rule(Fact(car=MATCH.car))
-    def car_result(self, car):
-        self.carResult = car
+        self.setup_ui()
 
-# GUI Code
-root = Tk()
-root.title("Car Expert System")
-root.geometry("700x600")
-root.config(bg="#F4F4F4")
+    def setup_ui(self):
+        self.title_label = tk.Label(self.root, text="Karhabti - اختر تفضيلاتك",
+                                     font=("Cairo", 22, "bold"), fg="white", bg="#1e1e2f")
+        self.title_label.pack(pady=20)
 
-# Styling
-style = ttk.Style()
-style.configure('TButton', font=('Segoe UI', 12), padding=6)
-style.configure('TLabel', font=('Segoe UI', 13), background="#F4F4F4")
+        self.questions_frame = tk.Frame(self.root, bg="#1e1e2f")
+        self.questions_frame.pack(pady=10)
 
-# Variables
-country = StringVar()
-carType = StringVar()
-fuel = StringVar()
-money = StringVar()
+        self.questions = {
+            'price': ['low', 'medium', 'high'],
+            'fuel': ['gasoline', 'diesel', 'electric', 'hybrid'],
+            'size': ['small', 'medium', 'large']
+        }
 
-car_descriptions = {
-    "Mercedes Class S": "A high-end luxury sedan with cutting-edge technology and comfort.",
-    "Porsche 911": "A legendary German sports car known for its performance and design.",
-    "Ford Explorer": "A practical SUV from the USA, ideal for families and off-road trips.",
-    "Toyota Prius": "A reliable and fuel-efficient hybrid sedan from Japan."
-}
+        self.options = {}
+        for idx, (question, choices) in enumerate(self.questions.items()):
+            label = tk.Label(self.questions_frame, text=question.upper(), font=("Cairo", 14), fg="white", bg="#1e1e2f")
+            label.grid(row=idx*2, column=0, sticky="w", pady=5)
+            var = tk.StringVar()
+            self.options[question] = var
+            for j, choice in enumerate(choices):
+                rb = tk.Radiobutton(self.questions_frame, text=choice.capitalize(), variable=var, value=choice,
+                                    font=("Cairo", 12), fg="white", bg="#2d2d44", selectcolor="#444",
+                                    activebackground="#3e3e5e", activeforeground="white")
+                rb.grid(row=idx*2+1, column=j, padx=5, pady=2)
 
-# Input Normalization
-def normalize_inputs():
-    return {
-        "country": country.get().capitalize(),
-        "carType": carType.get().capitalize(),
-        "fuel": fuel.get().capitalize(),
-        "money": money.get().capitalize()
-    }
+        self.submit_btn = tk.Button(self.root, text="اعرض النتيجة", font=("Cairo", 14, "bold"), bg="#00adb5", fg="white",
+                                    activebackground="#007b83", command=self.run_engine)
+        self.submit_btn.pack(pady=20)
 
-def show_result_window(carResult):
-    windowRes = Toplevel(root)
-    windowRes.title("Recommendation Result")
-    windowRes.geometry("500x500")
-    windowRes.config(bg="#FFFFFF")
+        self.result_frame = tk.Frame(self.root, bg="#1e1e2f")
+        self.result_frame.pack(pady=10)
 
-    Label(windowRes, text="Recommended Car:", font=("Segoe UI", 16, 'bold'), bg="#FFFFFF").pack(pady=20)
-    Label(windowRes, text=carResult, font=("Segoe UI", 14), bg="#FFFFFF").pack(pady=10)
-    Label(windowRes, text=car_descriptions.get(carResult, ""), wraplength=400, font=("Segoe UI", 12), bg="#FFFFFF").pack(pady=10)
+    def run_engine(self):
+        engine = CarExpert()
+        engine.reset()
 
-    try:
-        resImage = PhotoImage(file=f"./images/{carResult}.gif").subsample(2, 2)
-    except:
-        resImage = PhotoImage(file="./images/default.gif").subsample(2, 2)
+        try:
+            for question in self.questions:
+                answer = self.options[question].get()
+                if not answer:
+                    raise ValueError("الرجاء الإجابة على جميع الأسئلة.")
+                engine.declare(Fact(**{question: answer}))
 
-    Label(windowRes, image=resImage, bg="#FFFFFF").pack(pady=20)
-    windowRes.image = resImage
+            engine.run()
+            car_fact = list(engine.facts.values())[-1]
 
-def run_expert_system():
-    if not all([country.get(), carType.get(), fuel.get(), money.get()]):
-        messagebox.showwarning("Input Error", "Please answer all questions.")
-        return
+            if isinstance(car_fact, Fact) and 'car' in car_fact:
+                self.show_result(car_fact['car'])
+            else:
+                self.show_result(None)
+        except ValueError as ve:
+            messagebox.showerror("خطأ", str(ve))
 
-    input_data = normalize_inputs()
-    engine = CarExpertSystem()
-    engine.reset()
-    engine.declare(Fact(country=input_data['country']))
-    engine.declare(Fact(carType=input_data['carType']))
-    engine.declare(Fact(fuel=input_data['fuel']))
-    engine.declare(Fact(money=input_data['money']))
-    engine.run()
+    def show_result(self, car_name):
+        for widget in self.result_frame.winfo_children():
+            widget.destroy()
 
-    if hasattr(engine, 'carResult'):
-        show_result_window(engine.carResult)
-    else:
-        messagebox.showinfo("No Match", "Sorry, we couldn't find a match for your preferences.")
+        if car_name:
+            img_path = os.path.join("images", f"{car_name}.gif")
+            if os.path.exists(img_path):
+                img = PhotoImage(file=img_path)
+                self.image_refs['car'] = img  # prevent garbage collection
+                image_label = tk.Label(self.result_frame, image=img, bg="#1e1e2f")
+                image_label.pack(pady=10)
+            label = tk.Label(self.result_frame, text=f"نقترح عليك: {car_name}", font=("Cairo", 18), fg="#00ffcc", bg="#1e1e2f")
+            label.pack()
+        else:
+            all_images = os.listdir("images")
+            gif_images = [img for img in all_images if img.endswith(".gif")]
+            if gif_images:
+                random_img = random.choice(gif_images)
+                img = PhotoImage(file=os.path.join("images", random_img))
+                self.image_refs['default'] = img
+                label_img = tk.Label(self.result_frame, image=img, bg="#1e1e2f")
+                label_img.pack(pady=10)
+            label = tk.Label(self.result_frame, text="لم نجد تطابقاً. جرّب خيارات مختلفة!",
+                              font=("Cairo", 16), fg="orange", bg="#1e1e2f")
+            label.pack()
 
-# UI Components
-Label(root, text="Where do you prefer the car is from?", font=("Segoe UI", 14)).pack(pady=5)
-ttk.Combobox(root, textvariable=country, values=["France", "Germany", "USA", "Japan"]).pack(pady=5)
-
-Label(root, text="What type of car do you prefer?", font=("Segoe UI", 14)).pack(pady=5)
-ttk.Combobox(root, textvariable=carType, values=["Luxury", "Sports", "SUV", "Sedan"]).pack(pady=5)
-
-Label(root, text="Preferred fuel type?", font=("Segoe UI", 14)).pack(pady=5)
-ttk.Combobox(root, textvariable=fuel, values=["Petrol", "Diesel", "Hybrid"]).pack(pady=5)
-
-Label(root, text="What is your budget range?", font=("Segoe UI", 14)).pack(pady=5)
-ttk.Combobox(root, textvariable=money, values=["Low", "Medium", "High"]).pack(pady=5)
-
-Button(root, text="Get Recommendation", font=("Segoe UI", 14), command=run_expert_system, bg="#4285F4", fg="white", padx=20, pady=10).pack(pady=30)
-
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = CarApp(root)
+    root.mainloop()
