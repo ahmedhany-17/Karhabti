@@ -91,42 +91,35 @@ class CarExpertSystem(KnowledgeEngine):
 root = tk.Tk()
 root.title("Karhabti - Car Recommendation System")
 root.geometry("1000x700")
-root.configure(bg="#121212")  # Dark background
+root.configure(bg="#F0F4F8")
+root.iconphoto(False, PhotoImage(file="./icons/car.png"))
 
-# Icon (optional, ensure icon file exists)
-icon_path = "./icons/car.png"
-if os.path.exists(icon_path):
-    root.iconphoto(False, PhotoImage(file=icon_path))
+header = Frame(root, bg="#DCE9F1")
+header.pack(fill="x", padx=20, pady=10)
+Label(header, text="Karhabti 🚗", font=("Cairo", 22, "bold"), fg="#2B2D42", bg="#DCE9F1").pack()
+Label(header, text="Find the best car based on your preferences.", font=("Cairo", 14), bg="#DCE9F1").pack()
 
-# Header
-header = Frame(root, bg="#1f2937")  # Dark slate background
-header.pack(fill="x", padx=20, pady=15)
-Label(header, text="Karhabti 🚗", font=("Arial", 26, "bold"), fg="#0ef", bg="#1f2937").pack()
-Label(header, text="Find the best car based on your preferences.", font=("Arial", 14), fg="#a0a0a0", bg="#1f2937").pack()
-
-form_frame = Frame(root, bg="#121212")
+form_frame = Frame(root, bg="#F0F4F8")
 form_frame.pack(pady=20)
 
-# Dropdowns / Choices
+# Dropdowns/Choices
 criteria = [
-    ("Country of Manufacture:", country, ["france", "germany", "usa", "japan"]),
-    ("Type of Car:", car_type, ["sport", "commercial", "popular", "high_end"]),
-    ("Fuel Type:", fuel, ["Diesel", "Gasoline", "Electric"]),
-    ("Price Range:", price_range, ["[10000-70000]", "[80000-300000]", "[300000-600000]"])
+    ("Country of Manufacture", country, ["france", "germany", "usa", "japan"]),
+    ("Type of Car", car_type, ["sport", "commercial", "popular", "high_end"]),
+    ("Fuel Type", fuel, ["Diesel", "Gasoline", "Electric"]),
+    ("Price Range", price_range, ["[10000-70000]", "[80000-300000]", "[300000-600000]"])
 ]
 
 for i, (label_text, var, options) in enumerate(criteria):
-    group = Frame(form_frame, bg="#121212")
-    group.grid(row=i, column=0, pady=10, sticky="w", padx=20)
-    Label(group, text=label_text, font=("Arial", 13, "bold"), fg="#ccc", bg="#121212").pack(anchor="w")
+    group = Frame(form_frame, bg="#F0F4F8")
+    group.grid(row=i, column=0, pady=10)
+    Label(group, text=label_text, font=("Cairo", 13, "bold"), bg="#F0F4F8").pack(anchor="w")
     for val in options:
-        Radiobutton(group, text=val.title().replace("_", " "), variable=var, value=val,
-                    bg="#121212", fg="#eee", selectcolor="#0ef",
-                    font=("Arial", 12)).pack(anchor="w", padx=20, pady=2)
+        Radiobutton(group, text=val.title().replace("_", " "), variable=var, value=val, bg="#F0F4F8", font=("Cairo", 12)).pack(anchor="w")
 
 # Buttons
-button_frame = Frame(root, bg="#121212")
-button_frame.pack(pady=15)
+button_frame = Frame(root, bg="#F0F4F8")
+button_frame.pack(pady=10)
 
 def reset_inputs():
     country.set("")
@@ -136,7 +129,7 @@ def reset_inputs():
 
 def show_result():
     if not all([country.get(), car_type.get(), fuel.get(), price_range.get()]):
-        messagebox.showwarning("Incomplete", "Please select all preferences.")
+        messagebox.showwarning("Incomplete", "Please select all preferences")
         return
 
     engine = CarExpertSystem()
@@ -145,62 +138,39 @@ def show_result():
 
     result_window = tk.Toplevel(root)
     result_window.title("Your Car Recommendation")
-    result_window.geometry("900x650")
-    result_window.configure(bg="#1e1e2f")
+    result_window.geometry("800x600")
+    result_window.configure(bg="#FFFFFF")
 
-    Label(result_window, text="Your Car Suggestion:", font=("Arial", 18, "bold"), fg="#0ef", bg="#1e1e2f").pack(pady=15)
+    Label(result_window, text="Your Car Suggestion:", font=("Cairo", 16, "bold"), bg="#FFFFFF", fg="#1B1B2F").pack(pady=10)
 
     if car_result == "no_idea":
-        fallback = random.choice(["Audi_A4.gif", "Toyota_Prado.gif", "Chery_Tiggo_2.gif"])
-        display_name = fallback.replace("_", " ").replace(".gif", "")
-        Label(result_window, text=display_name, font=("Arial", 22, "bold"), fg="#ff5555", bg="#1e1e2f").pack(pady=10)
-        image_file = os.path.join("./images", fallback)
+        fallback = random.choice(["Audi_A4", "Toyota_Prado", "Chery_Tiggo_2"])
+        Label(result_window, text=fallback.replace("_", " "), font=("Cairo", 20, "bold"), fg="#FF595E", bg="#FFFFFF").pack(pady=10)
+        image_file = f"./images/{fallback}.gif"
     else:
-        display_name = car_result.replace("_", " ")
-        Label(result_window, text=display_name, font=("Arial", 22, "bold"), fg="#0ef", bg="#1e1e2f").pack(pady=10)
-        image_file = os.path.join("./images", car_result + ".gif")
+        Label(result_window, text=car_result.replace("_", " "), font=("Cairo", 22, "bold"), fg="#1985A1", bg="#FFFFFF").pack(pady=10)
+        image_file = f"./images/{car_result}.gif"
 
-    # Show main recommended car image
     if os.path.exists(image_file):
         car_image = PhotoImage(file=image_file).subsample(2, 2)
-        Label(result_window, image=car_image, bg="#1e1e2f").pack(pady=5)
+        Label(result_window, image=car_image, bg="#FFFFFF").pack()
         result_window.image = car_image
     else:
-        Label(result_window, text="Image not found", fg="#ff5555", bg="#1e1e2f").pack()
+        Label(result_window, text="Image not found", bg="#FFFFFF").pack()
 
-    # Show all available cars images
-    Label(result_window, text="All Available Cars:", font=("Arial", 16, "bold"), fg="#0ef", bg="#1e1e2f").pack(pady=15)
-
+    Label(result_window, text="Other Available Cars:", font=("Cairo", 14, "bold"), bg="#FFFFFF", fg="#2B2D42").pack(pady=10)
     all_images = [f for f in os.listdir("./images") if f.endswith(".gif")]
-    img_frame = Frame(result_window, bg="#1e1e2f")
-    img_frame.pack(pady=5, fill="x")
-
-    # Horizontal scrollable frame for images (if many)
-    canvas = tk.Canvas(img_frame, bg="#1e1e2f", height=160, highlightthickness=0)
-    scrollbar = tk.Scrollbar(img_frame, orient="horizontal", command=canvas.xview)
-    scrollable_frame = tk.Frame(canvas, bg="#1e1e2f")
-
-    scrollable_frame.bind(
-        "<Configure>",
-        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-    )
-
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-    canvas.configure(xscrollcommand=scrollbar.set)
-
-    canvas.pack(side="top", fill="x", expand=True)
-    scrollbar.pack(side="bottom", fill="x")
+    img_frame = Frame(result_window, bg="#FFFFFF")
+    img_frame.pack()
 
     for img in all_images:
-        img_path = os.path.join("./images", img)
+        img_path = f"./images/{img}"
         small_img = PhotoImage(file=img_path).subsample(4, 4)
-        lbl = Label(scrollable_frame, image=small_img, bg="#1e1e2f")
+        lbl = Label(img_frame, image=small_img, bg="#FFFFFF")
         lbl.image = small_img
-        lbl.pack(side="left", padx=10, pady=10)
+        lbl.pack(side="left", padx=5, pady=5)
 
-Button(button_frame, text="Reset", command=reset_inputs,
-       font=("Arial", 13, "bold"), bg="#555555", fg="white", width=12).pack(side="left", padx=20)
-Button(button_frame, text="Search", command=show_result,
-       font=("Arial", 13, "bold"), bg="#0ef", fg="#121212", width=12).pack(side="left", padx=20)
+Button(button_frame, text="Reset", command=reset_inputs, font=("Cairo", 12), bg="#EDF6F9", fg="#006D77").pack(side="left", padx=10)
+Button(button_frame, text="Search", command=show_result, font=("Cairo", 12), bg="#118AB2", fg="white").pack(side="left", padx=10)
 
 root.mainloop()
