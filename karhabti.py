@@ -3,19 +3,37 @@ from tkinter import *
 from tkinter import messagebox
 from experta import *
 import random
+import os
 
-# GUI window
+# إعدادات الألوان والخطوط
+BACKGROUND_COLOR = "#f0f4f8"
+FRAME_COLOR = "#ffffff"
+TEXT_COLOR = "#333333"
+BUTTON_COLOR = "#4CAF50"
+BUTTON_TEXT_COLOR = "#ffffff"
+FONT_NAME = "Helvetica"
+
+# مسارات الصور
+ICON_PATH = "./icons/car.png"
+RESET_ICON_PATH = "./icons/resetIm.gif"
+SEARCH_ICON_PATH = "./icons/save.gif"
+IMAGE_FOLDER = "./images/"
+
+# إنشاء النافذة الرئيسية
 root = tk.Tk()
-root.iconphoto(False, tk.PhotoImage(file='./icons/car.png'))
+root.title("Karhabti")
+root.geometry("900x700")
+root.configure(bg=BACKGROUND_COLOR)
+root.iconphoto(False, tk.PhotoImage(file=ICON_PATH))
 
-# Global Variables
+# المتغيرات
 carResult = ""
 country = StringVar()
 carType = StringVar()
 fuel = StringVar()
 money = StringVar()
 
-# Expert System Rules
+# نظام الخبرة
 class Welcome(KnowledgeEngine):
     @DefFacts()
     def initial(self):
@@ -37,7 +55,6 @@ class Welcome(KnowledgeEngine):
     def carPrice(self):
         self.declare(Fact(price=money.get()))
 
-    # Rules
     @Rule(Fact(action='find_car'), Fact(typeCar="popular"), Fact(manifactor="France"))
     def r1(self):
         self.declare(Fact(cartype="Peugot"))
@@ -62,7 +79,7 @@ class Welcome(KnowledgeEngine):
     def r6(self):
         self.declare(Fact(car="Mercedes class A"))
 
-    @Rule(Fact(action='find_car'), Fact(typeCar="high end"), Fact(manifactor="USA"), Fact(fuel="Electric"))
+    @Rule(Fact(action='find_car'), Fact(typeCar="High End"), Fact(manifactor="USA"), Fact(fuel="Electric"))
     def r7(self):
         self.declare(Fact(cartype="Tesla"))
 
@@ -70,7 +87,7 @@ class Welcome(KnowledgeEngine):
     def r8(self):
         self.declare(Fact(car="Tesla Model 3"))
 
-    @Rule(Fact(action='find_car'), Fact(typeCar="sport"), Fact(manifactor="Germany"), Fact(fuel="Mazout"))
+    @Rule(Fact(action='find_car'), Fact(typeCar="Sport"), Fact(manifactor="Germany"), Fact(fuel="Mazout"))
     def r9(self):
         self.declare(Fact(cartype="Audi"))
 
@@ -92,131 +109,93 @@ class Welcome(KnowledgeEngine):
         global carResult
         carResult = "no idea"
 
-# GUI Constants
-backgroundvalue = "#F6F5F5"
-bgFrames = "#D3E0EA"
-textColors = "#1687A7"
-optionsColor = "black"
-titleColor = "#276678"
-
-# Expert system object
 engine = Welcome()
 
-# Result window
+# دالة لفتح نافذة النتائج
 def openResultWindow():
     engine.reset()
     engine.run()
 
-    windowRes = Tk()
-    windowRes.title = ""
-    windowRes.iconphoto(False, PhotoImage(master=windowRes, file='./icons/car.png'))
-    windowRes.maxsize(700, 500)
-    windowRes.config(bg=backgroundvalue)
+    windowRes = Toplevel(root)
+    windowRes.title("Recommendation")
+    windowRes.geometry("700x500")
+    windowRes.configure(bg=BACKGROUND_COLOR)
+    windowRes.iconphoto(False, PhotoImage(file=ICON_PATH))
 
-    headFrame = Frame(windowRes, bg=backgroundvalue)
-    headFrame.pack(pady=10)
-    BodyFrame = Frame(windowRes, bg=backgroundvalue)
-    BodyFrame.pack()
+    headFrame = Frame(windowRes, bg=BACKGROUND_COLOR)
+    headFrame.pack(pady=20)
+
+    BodyFrame = Frame(windowRes, bg=BACKGROUND_COLOR)
+    BodyFrame.pack(pady=10)
 
     if carResult == "no idea":
         carName = random.choice(["Audi a4", "Toyota Prado", "Chery Tiggo 2"])
-        Label(headFrame, text="Sorry, we couldn't find a car in our knowledge base with your preferences.",
-              font=("arial italic", 10), bg=backgroundvalue, fg=titleColor).pack()
-        Label(headFrame, text="But we recommend:", font=("arial italic", 10), bg=backgroundvalue, fg=titleColor).pack()
-        Label(headFrame, text=carName, font=("arial italic", 18, "bold"), bg=backgroundvalue, fg=titleColor).pack()
-        try:
-            resImage = PhotoImage(master=BodyFrame, file=f"./images/{carName}.gif").subsample(2, 2)
-            Label(BodyFrame, image=resImage).pack(pady=20)
-            Label(BodyFrame).image = resImage
-        except:
-            pass
+        Label(headFrame, text="لم نتمكن من العثور على سيارة تطابق تفضيلاتك.", font=(FONT_NAME, 14), bg=BACKGROUND_COLOR, fg=TEXT_COLOR).pack()
+        Label(headFrame, text="لكن نوصي بـ:", font=(FONT_NAME, 12), bg=BACKGROUND_COLOR, fg=TEXT_COLOR).pack()
     else:
-        Label(headFrame, text="Referring to your choices, we recommend:", font=("arial italic", 10), bg=backgroundvalue,
-              fg=titleColor).pack()
-        Label(headFrame, text=carResult, font=("arial italic", 18, "bold"), bg=backgroundvalue, fg=titleColor).pack()
-        try:
-            resImage = PhotoImage(master=BodyFrame, file=f"./images/{carResult}.gif").subsample(2, 2)
-            Label(BodyFrame, image=resImage).pack(pady=20)
-            Label(BodyFrame).image = resImage
-        except:
-            pass
+        carName = carResult
+        Label(headFrame, text="بناءً على اختياراتك، نوصي بـ:", font=(FONT_NAME, 14), bg=BACKGROUND_COLOR, fg=TEXT_COLOR).pack()
 
-    windowRes.mainloop()
+    Label(headFrame, text=carName, font=(FONT_NAME, 18, "bold"), bg=BACKGROUND_COLOR, fg=TEXT_COLOR).pack(pady=10)
 
-# Main Window GUI
-root.title("Karhabti")
-root.maxsize(900, 700)
-root.config(bg=backgroundvalue)
+    image_path = os.path.join(IMAGE_FOLDER, f"{carName}.gif")
+    if os.path.exists(image_path):
+        resImage = PhotoImage(file=image_path).subsample(2, 2)
+        Label(BodyFrame, image=resImage, bg=BACKGROUND_COLOR).pack()
+        windowRes.mainloop()
+    else:
+        Label(BodyFrame, text="صورة غير متوفرة", font=(FONT_NAME, 12), bg=BACKGROUND_COLOR, fg=TEXT_COLOR).pack()
 
-# Head Section
-headFrame = tk.Frame(root, bg=backgroundvalue)
-headFrame.grid(row=0, column=0, padx=10, pady=5)
+# دالة لإعادة تعيين المدخلات
+def resetInput():
+    country.set(None)
+    carType.set(None)
+    fuel.set(None)
+    money.set(None)
 
-tk.Label(headFrame, text="  Karhabti: ", font=("arial italic", 18, "bold"), bg=backgroundvalue,
-         fg=titleColor).grid(row=0, column=1, padx=5, pady=5)
-tk.Label(headFrame, text="Expert system to get the car that suits you in Germany", font=("arial italic", 15),
-         bg=backgroundvalue, fg=titleColor).grid(row=1, column=1, padx=5, pady=5)
+# دالة للتحقق من المدخلات وتشغيل النظام
+def on_submit():
+    if not all([country.get(), carType.get(), fuel.get(), money.get()]):
+        messagebox.showwarning("تحذير", "يرجى اختيار جميع الخيارات.")
+    else:
+        openResultWindow()
 
-# Body Frame
-BodyFrame = tk.Frame(root, bg=backgroundvalue)
-BodyFrame.grid(row=1, column=0, padx=10, pady=5)
+# إنشاء الإطارات
+headFrame = Frame(root, bg=BACKGROUND_COLOR)
+headFrame.pack(pady=20)
 
-left_frame = tk.Frame(BodyFrame, bg=bgFrames)
-left_frame.grid(row=1, column=0, padx=20, pady=5)
+BodyFrame = Frame(root, bg=BACKGROUND_COLOR)
+BodyFrame.pack(pady=10)
 
-right_frame = tk.Frame(BodyFrame, bg=bgFrames)
-right_frame.grid(row=1, column=1, padx=20, pady=5)
+footerFrame = Frame(root, bg=BACKGROUND_COLOR)
+footerFrame.pack(pady=20)
 
-# Country Group
-groupe1 = Frame(left_frame, bg=bgFrames)
-groupe1.grid(row=0, column=0, padx=5, pady=5)
+# عنوان التطبيق
+Label(headFrame, text="Karhabti", font=(FONT_NAME, 24, "bold"), bg=BACKGROUND_COLOR, fg=TEXT_COLOR).pack()
+Label(headFrame, text="نظام خبير لمساعدتك في اختيار السيارة المناسبة", font=(FONT_NAME, 14), bg=BACKGROUND_COLOR, fg=TEXT_COLOR).pack()
 
-Label(groupe1, text="Country of Manufacture", bg=bgFrames, fg=textColors, font=("arial", 12, "bold")).pack()
-country.set(None)
+# خيارات الدولة
+country_frame = LabelFrame(BodyFrame, text="بلد الصنع", font=(FONT_NAME, 12, "bold"), bg=FRAME_COLOR, fg=TEXT_COLOR)
+country_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-countries = [("France", "France"), ("Germany", "Germany"), ("USA", "USA"), ("Japan", "Japan")]
-for text, value in countries:
-    Radiobutton(groupe1, text=text, variable=country, value=value, bg=bgFrames, fg=optionsColor,
-                font=("arial", 12)).pack(anchor="w")
+Radiobutton(country_frame, text="فرنسا", variable=country, value="France", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
+Radiobutton(country_frame, text="ألمانيا", variable=country, value="Germany", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
+Radiobutton(country_frame, text="الولايات المتحدة", variable=country, value="USA", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
+Radiobutton(country_frame, text="اليابان", variable=country, value="Japan", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
 
-# Car Type Group
-groupe2 = Frame(left_frame, bg=bgFrames)
-groupe2.grid(row=1, column=0, padx=5, pady=5)
+# خيارات نوع السيارة
+type_frame = LabelFrame(BodyFrame, text="نوع السيارة", font=(FONT_NAME, 12, "bold"), bg=FRAME_COLOR, fg=TEXT_COLOR)
+type_frame.grid(row=0, column=1, padx=20, pady=10, sticky="w")
 
-Label(groupe2, text="Type of Car", bg=bgFrames, fg=textColors, font=("arial", 12, "bold")).pack()
-carType.set(None)
+Radiobutton(type_frame, text="رياضية", variable=carType, value="Sport", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
+Radiobutton(type_frame, text="تجارية", variable=carType, value="Commercial", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
+Radiobutton(type_frame, text="شعبية", variable=carType, value="Popular", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
+Radiobutton(type_frame, text="فاخرة", variable=carType, value="High End", bg=FRAME_COLOR, fg=TEXT_COLOR, font=(FONT_NAME, 12)).pack(anchor="w")
 
-types = [("Sport", "sport"), ("Commercial", "commercial"), ("Popular", "popular"), ("High end", "high end")]
-for text, value in types:
-    Radiobutton(groupe2, text=text, variable=carType, value=value, bg=bgFrames, fg=optionsColor,
-                font=("arial", 12)).pack(anchor="w")
+# خيارات نوع الوقود
+fuel_frame = LabelFrame(BodyFrame, text="نوع الوقود", font=(FONT_NAME, 12, "bold"), bg=FRAME_COLOR, fg=TEXT_COLOR)
+fuel_frame.grid(row=1, column=0, padx=20, pady=10, sticky="w")
 
-# Fuel Group
-groupe3 = Frame(right_frame, bg=bgFrames)
-groupe3.grid(row=0, column=0, padx=5, pady=5)
-
-Label(groupe3, text="Fuel Type", bg=bgFrames, fg=textColors, font=("arial", 12, "bold")).pack()
-fuel.set(None)
-
-fuels = [("Mazout", "Mazout"), ("Gasoline", "Gasoline"), ("Electric", "Electric")]
-for text, value in fuels:
-    Radiobutton(groupe3, text=text, variable=fuel, value=value, bg=bgFrames, fg=optionsColor,
-                font=("arial", 12)).pack(anchor="w")
-
-# Price Group
-groupe4 = Frame(right_frame, bg=bgFrames)
-groupe4.grid(row=1, column=0, padx=5, pady=5)
-
-Label(groupe4, text="Price Range", bg=bgFrames, fg=textColors, font=("arial", 12, "bold")).pack()
-money.set(None)
-
-prices = ["[10000-20000]", "[20000-30000]", "[30000-70000]", "[60000-180000]", "[180000-600000]"]
-for price in prices:
-    Radiobutton(groupe4, text=price, variable=money, value=price, bg=bgFrames, fg=optionsColor,
-                font=("arial", 12)).pack(anchor="w")
-
-# Submit Button
-Button(root, text="Submit", font=("arial", 12, "bold"), bg="#276678", fg="white", command=openResultWindow).grid(
-    row=3, column=0, pady=10)
-
-root.mainloop()
+Radiobutton(fuel_frame, text="مازوت", variable=fuel, value="Mazout", bg=FRAME_COLOR, fg=TEXT
+::contentReference[oaicite:0]{index=0}
+ 
